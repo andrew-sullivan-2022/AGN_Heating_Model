@@ -6,20 +6,128 @@ from pydl.pydlutils.cooling import read_ds_cooling
 from numba import njit, prange
 from RAiSEHD import RAiSE_run
 
-# calculating profiles for a given jet power range
+## AGN HEATING MODEL
+
+## Physical constants
+# speed of light
+c_light = 3*10**8 # m s^-1
+# newton's gravitational constant
+G = 6.6743*10**(-11) # m^3 kg^-1 s^-2
+# the bolztmann constant
+kB = 1.3806*10**(-23) # m^2 kg s^-2 K^-1
+# proton mass
+mp = 1.6726*10**(-27) # kg
+# electron volt
+eV = 1.602*10**(-19) # J
+
+## Cosmological constants
+# hubble parameter
+h = 0.6751
+# present-day critical density of the universe
+rho_crit = 1.8788*10**(-26)*h**2 # kg m^-3
+# density parameters
+Omega_b = 0.0486
+Omega_DM = 0.2589
+# fraction of baryon content
+f_b = Omega_b/(Omega_b + Omega_DM)
+## Unit conversions
+# solar mass
+Msol = 1.989*10**30 # kg
+# year
+yr = 3.156*10**7
+# megayear
+Myr = 3.156*10**13 # s
+# gigayear
+Gyr = 3.156*10**16 # s
+# kiloparsec
+kpc = 3.086*10**19 # m
+# megaparsec
+Mpc = 3.086*10**22 # m
+
+## Gas parameters
+# mean molecular weight
+mu = 0.6
+# mean electron weight
+mu_e = 1.148
+# mean ion weight
+mu_i = (1/mu + 1/mu_e)**(-1)
+# adiabatic index
+gamma = 5/3
+
+## Functions
+# reading in files (as flattened lists)
+def read_file_to_list(filename):
+    with open(filename, 'r') as file:
+        content = file.read()
+    content = content.replace('\n', ' ')
+    content = content.replace(',', ' ')
+    content = content.replace('[', '')
+    content = content.replace(']', '')
+    elements = content.split()
+    return np.loadtxt(elements)
+# reading in files (as nested arrays)
+def read_file_to_nested_array(filename):
+    ## data shape: [N][M][X]
+    blocks = []
+    current_block = []
+    with open(filename, "r") as f:
+        for line in f:
+            stripped = line.strip()
+            if stripped == "":
+                if current_block:
+                    blocks.append(np.array(current_block))
+                    current_block = []
+            else:
+                current_block.append(
+                    np.fromstring(stripped, sep=" ")
+                )
+    # catch last block
+    if current_block:
+        blocks.append(np.array(current_block))
+    return np.array(blocks)
+# saving files (as nested arrays)
+def save_nested_arrays(filename, data):
+    ## data shape: [N][M][X]
+    with open(filename, "w") as f:
+        for i, block in enumerate(data):      # N blocks
+            for array in block:               # M arrays
+                np.savetxt(f, np.atleast_1d(array)[None, :])
+            if i != len(data) - 1:
+                f.write("\n")
+# numba-friendly Heaviside function
+@njit
+def heaviside(x):
+    return 0 if x < 0 else 1
+# weighted percentile function
+def weighted_percentile(values, percentiles, weights):
+    values = np.asarray(values, dtype=float)
+    weights = np.asarray(weights, dtype=float)
+    sorter = np.argsort(values)
+    values_sorted = values[sorter]
+    weights_sorted = weights[sorter]
+    cdf = np.cumsum(weights_sorted, dtype=float)
+    cdf /= cdf[-1]
+    return np.interp(np.array(percentiles)/100.0, cdf, values_sorted)
+
+## AGN heating model
+# function for calculating heating rate, velocity kick and NTP fraction
 def func_calculate_feedback(log_Qjet_vals, log_active_age_vals, duty_cycle, redshift, gas_density_profile, temperature_profile, halo_radius, log_Qjet=0.01, log_dt=0.1):
-    ## Running RAiSE
+    ## Inputs
     # loading jet powers
-    log_Qjet_vals = np.round(log_Qjet_vals, builtins.int(-np.log10(log_Qjet)))
+    log_Qjet_vals = np.atleast_1d(np.round(log_Qjet_vals, builtins.int(-np.log10(log_Qjet))))
     power_res = 1 if np.isscalar(log_Qjet_vals) else len(log_Qjet_vals)
     # loading active ages
-    log_active_age_vals = np.round(log_active_age_vals, builtins.int(-np.log10(log_dt)))
-    # source age time steps
-    log_age_steps = np.round(np.linspace(0.1, 9, num=builtins.int((9 - 0.1)/log_dt) + 1), 2)
-    log_active_age_indices = np.searchsorted(log_age_steps, np.atleast_1d(log_active_age_vals))
+    log_active_age_vals = np.atleast_1d(np.round(log_active_age_vals, builtins.int(-np.log10(log_dt))))
+    # setting source age time steps
+    step_min, step_max = min([0.1, np.min(log_active_age_vals)]), max([9, np.max(log_active_age_vals)])
+    log_age_steps = np.round(np.linspace(step_min, step_max, num=builtins.int((step_max - step_min)/log_dt) + 1), 2)
+    log_active_age_indices = np.searchsorted(log_age_steps, log_active_age_vals)
     # loading active ages, indexed from source age time steps
     log_active_age_vals = log_age_steps[log_active_age_indices]
     age_res = 1 if np.isscalar(log_active_age_vals) else len(log_active_age_vals)
+    # halo radius resolution
+    radius_bins = len(halo_radius)
+
     ## RAiSE inputs
     # variables with fixed values
     axis_ratio = 2.83  # default
@@ -29,7 +137,7 @@ def func_calculate_feedback(log_Qjet_vals, log_active_age_vals, duty_cycle, reds
     # angular components
     angular_res = 64
     angles = np.arange(0, angular_res, 1).astype(np.int_)[::-1]
-    dtheta = (np.pi / 2) / (angular_res - 1)
+    dtheta = (np.pi/2) / (angular_res - 1)
     theta = dtheta * angles
     solid_angles = np.empty(64)
     for i in range(angular_res):
@@ -112,8 +220,6 @@ def func_calculate_feedback(log_Qjet_vals, log_active_age_vals, duty_cycle, reds
                 V_shock_shell[i, j] = (1/3)*np.sum(np.multiply(solid_angles, np.subtract(np.power(R_shock_lengths[i, j], 3), np.power(R_cocoon_lengths[i, j], 3))))
         return V_cocoon, V_shock, V_shock_shell
     V_cocoon, V_shock, V_shock_shell = compute_volumes(R_cocoon_lengths, R_shock_lengths, solid_angles)
-    # assuming spherical geometry
-    R_cocoon_sphere = np.cbrt(3*V_cocoon/(4*np.pi))
 
     ## Filling factor profiles
     # filling factor of the cocoon, shock and shock shell
