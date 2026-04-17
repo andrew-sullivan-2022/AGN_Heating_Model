@@ -1,5 +1,3 @@
-import builtins
-import h5py
 import numpy as np
 import pandas as pd
 from pydl.pydlutils.cooling import read_ds_cooling
@@ -114,13 +112,13 @@ def weighted_percentile(values, percentiles, weights):
 def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshift, gas_density_profile, temperature_profile, halo_radius, log_Qjet=0.01, log_dt=0.1):
     ## Inputs
     # loading jet powers
-    log_Qjet_vals = np.atleast_1d(np.round(log_Qjet_vals, builtins.int(-np.log10(log_Qjet))))
+    log_Qjet_vals = np.atleast_1d(np.round(log_Qjet_vals, int(-np.log10(log_Qjet))))
     power_res = 1 if np.isscalar(log_Qjet_vals) else len(log_Qjet_vals)
     # loading active ages
-    log_active_age_vals = np.atleast_1d(np.round(log_active_age_vals, builtins.int(-np.log10(log_dt))))
+    log_active_age_vals = np.atleast_1d(np.round(log_active_age_vals, int(-np.log10(log_dt))))
     # setting source age time steps
     step_min, step_max = min([0.1, np.min(log_active_age_vals)]), max([9, np.max(log_active_age_vals)])
-    log_age_steps = np.round(np.linspace(step_min, step_max, num=builtins.int((step_max - step_min)/log_dt) + 1), 2)
+    log_age_steps = np.round(np.linspace(step_min, step_max, num=int((step_max - step_min)/log_dt) + 1), 2)
     log_active_age_indices = np.searchsorted(log_age_steps, log_active_age_vals)
     # loading active ages, indexed from source age time steps
     log_active_age_vals = log_age_steps[log_active_age_indices]
