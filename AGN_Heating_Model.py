@@ -111,7 +111,7 @@ def weighted_percentile(values, percentiles, weights):
 
 ## AGN heating model
 # function for calculating heating rate, velocity kick and NTP fraction
-def func_calculate_feedback(log_Qjet_vals, log_active_age_vals, duty_cycle, redshift, gas_density_profile, temperature_profile, halo_radius, log_Qjet=0.01, log_dt=0.1):
+def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshift, gas_density_profile, temperature_profile, halo_radius, log_Qjet=0.01, log_dt=0.1):
     ## Inputs
     # loading jet powers
     log_Qjet_vals = np.atleast_1d(np.round(log_Qjet_vals, builtins.int(-np.log10(log_Qjet))))
