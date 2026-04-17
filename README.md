@@ -1,8 +1,8 @@
 **Function for calculating AGN heating**
 
-**calculate_AGN_heating**(_log_Qjet_vals, log_active_age_vals, duty_cycle, redshift, gas_density_profile, temperature_profile, halo_radius, log_dt_)
+**calculate_AGN_heating**(_log_Qjet_vals, log_active_age_vals, duty_cycle, redshift, gas_density_profile, temperature_profile, halo_radius, log_dt_=0.01)
 
-_Repuired parameters:_
+__Repuired parameters:__
 
  _log_Qjet_vals_ : float or array-like
 Logarithmic jet power [log W]
@@ -25,12 +25,12 @@ Temperature [K] of the environment, with values correspond to _halo_radius_
  _halo_radius_ : array-like
 Radial component [m] of _gas_density_profile_ and _temperature_profile_
 
-_Optional parameters:_
+__Optional parameters:__
 
  _log_dt_ : float
 Logarithmic time spacing [log yr] to evolve the source in RAiSE
 
-_Returns:_ 
+___Returns:__
 Creates array files (.txt) for:
 
  _Q_eff_ : array-like
