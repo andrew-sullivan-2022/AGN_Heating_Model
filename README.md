@@ -5,37 +5,37 @@
 __Repuired parameters:__
 ________________________
 
-** _log_Qjet_vals_ : float or array-like**
+**_log_Qjet_vals_ : float or array-like**
 
   Logarithmic jet power [log W]
 
 
-** _log_active_age_vals_ : float or array-like**
+**_log_active_age_vals_ : float or array-like**
 
   Logarithmic active age [log yr]
 
 
-** _duty_cycle_ : float**
+**_duty_cycle_ : float**
 
   Duty cycle of the AGN [percent]
 
 
-** _redshift_ : float**
+**_redshift_ : float**
 
   Redshift
 
 
-** _gas_density_profile_ : array-like**
+**_gas_density_profile_ : array-like**
 
   Gas density [kg/m^3] of the environment, with values corresponding to _halo_radius_
 
 
-** _temperature_profile_ : array-like**
+**_temperature_profile_ : array-like**
 
   Temperature [K] of the environment, with values correspond to _halo_radius_
 
 
-** _halo_radius_ : array-like**
+**_halo_radius_ : array-like**
 
   Radial component [m] of _gas_density_profile_ and _temperature_profile_
 
@@ -43,7 +43,7 @@ ________________________
 __Optional parameters:__
 ________________________
 
-** _log_dt_ : float**
+**_log_dt_ : float**
 
   Logarithmic time spacing [log yr] to evolve the source in RAiSE
 
@@ -53,17 +53,17 @@ ________________________
 
 Creates array files (.txt) for:
 
-** _Q_eff_ : array-like**
+**_Q_eff_ : array-like**
 
   Effective radially-averaged volumetric power [W/m^3] of the AGN
 
 
-** _v_kick_ : array-like**
+**_v_kick_ : array-like**
 
   Velocity kick [m/s] imparted on the gas
 
 
-** _NTP_fraction_ : array-like**
+**_NTP_fraction_ : array-like**
 
   Fraction of non-thermal pressure to total pressure [percent] 
 
