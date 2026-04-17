@@ -1,6 +1,7 @@
 **Function for calculating AGN heating**
 
 **calculate_AGN_heating**(_log_Qjet_vals, log_active_age_vals, duty_cycle, redshift, gas_density_profile, temperature_profile, halo_radius, log_dt_)
+
 _Repuired parameters:_
 
  _log_Qjet_vals_ : float or array-like
