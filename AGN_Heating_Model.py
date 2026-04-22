@@ -162,7 +162,7 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
     th_pressure_profile = np.multiply(gas_density_profile, kB*temperature_profile/(mu*mp)) # Pa
     th_pressure_derivative = np.gradient(th_pressure_profile, halo_radius) # Pa m^-1
     # gravitational potential energy (assuming hydrostatic environment)
-    grav_potential = (kB/(mu*mp))*np.multiply(temperature_profile, np.log(gas_density_profile)) # m^2 s^-2
+    grav_potential = -(kB/(mu*mp))*np.multiply(temperature_profile, np.log(gas_density_profile)) # m^2 s^-2
     # thermal velocity
     th_velocity_profile = np.sqrt(np.multiply(temperature_profile, 3*kB/(mu*mp)))  # m s^-1
 
@@ -396,7 +396,7 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
         return U_bubble_grav
     U_bubble_grav = compute_gravitational_potential_energy_of_cocoon(cocoon_rest_mass, R_cocoon, cocoon_filling_factors, grav_potential, gas_density_profile, halo_radius)
     # total bubble energy
-    E_bubble = np.add(U_bubble_grav, U_cocoon)
+    E_bubble = np.add(np.abs(U_bubble_grav), U_cocoon)
     # associated bubble power (x2 bubbles per duty cycle)
     Q_bubble = np.empty((power_res, age_res))
     for i in prange(power_res):
