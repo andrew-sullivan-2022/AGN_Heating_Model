@@ -360,13 +360,13 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
         U_shock_grav_initial = np.zeros((power_res, age_res))
         for i in prange(power_res):
             for j in range(age_res):
-                U_shock_grav_initial[i, j] = - 2*np.pi*np.trapz(np.multiply(np.multiply(np.square(halo_radius), shock_filling_factors[i, j]), np.multiply(gas_density_profile, grav_potential)), halo_radius)
+                U_shock_grav_initial[i, j] = 2*np.pi*np.trapz(np.multiply(np.multiply(np.square(halo_radius), shock_filling_factors[i, j]), np.multiply(gas_density_profile, grav_potential)), halo_radius)
         # change in gravitational potential energy of the shocked mass at end of active age
         U_shock_shells_grav = np.zeros((power_res, age_res))
         for i in prange(power_res):
             for j in range(age_res):
                 for k in range(angular_res):
-                    U_shock_shells_grav[i, j] += - solid_angles[k]*np.trapz(np.multiply(np.square(halo_radius), np.multiply(shock_shell_density_profiles[i, j, k], grav_potential)), halo_radius)
+                    U_shock_shells_grav[i, j] += solid_angles[k]*np.trapz(np.multiply(np.square(halo_radius), np.multiply(shock_shell_density_profiles[i, j, k], grav_potential)), halo_radius)
         U_shock_shell_grav = np.subtract(U_shock_shells_grav, U_shock_grav_initial)
         return U_shock_shell_grav
     U_shock_shell_grav = compute_gravitational_potential_energy_of_shock(R_cocoon_lengths, R_shock_lengths, shock_filling_factors, solid_angles, grav_potential, gas_density_profile, halo_radius)
@@ -387,16 +387,16 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
         cocoon_density_contrast = np.empty((power_res, age_res, radius_bins))
         for i in prange(power_res):
             for j in range(age_res):
-                cocoon_density_contrast[i, j] = np.subtract(gas_density_profile, cocoon_density_profile[i, j])
+                cocoon_density_contrast[i, j] = np.subtract(cocoon_density_profile[i, j], gas_density_profile)
         # gravitational potential energy of the bubble at end of active age
         U_bubble_grav = np.empty((power_res, age_res))
         for i in prange(power_res):
             for j in range(age_res):
-                U_bubble_grav[i, j] = - 2*np.pi*np.trapz(np.multiply(np.multiply(np.square(halo_radius), cocoon_filling_factors[i, j]), np.multiply(cocoon_density_contrast[i, j], grav_potential)), halo_radius)
+                U_bubble_grav[i, j] = 2*np.pi*np.trapz(np.multiply(np.multiply(np.square(halo_radius), cocoon_filling_factors[i, j]), np.multiply(cocoon_density_contrast[i, j], grav_potential)), halo_radius)
         return U_bubble_grav
     U_bubble_grav = compute_gravitational_potential_energy_of_cocoon(cocoon_rest_mass, R_cocoon, cocoon_filling_factors, grav_potential, gas_density_profile, halo_radius)
     # total bubble energy
-    E_bubble = np.add(np.abs(U_bubble_grav), U_cocoon)
+    E_bubble = np.abs(U_bubble_grav)
     # associated bubble power (x2 bubbles per duty cycle)
     Q_bubble = np.empty((power_res, age_res))
     for i in prange(power_res):
