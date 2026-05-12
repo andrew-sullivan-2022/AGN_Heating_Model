@@ -322,8 +322,8 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
         for i in prange(power_res):
             for j in range(age_res):
                 if V_cocoon[i, j] > 0:
-                    th_pressure_over_V_cocoon = 2*np.pi*np.trapz(np.multiply(np.square(halo_radius), np.multiply(cocoon_filling_factors[i, j], iso_th_pressure_profile)))/V_cocoon[i, j]
-                    th_pressure_over_V_shock_shell = 2*np.pi*np.trapz(np.multiply(np.square(halo_radius), np.multiply(shock_shell_filling_factors[i, j], iso_th_pressure_profile)))/V_shock_shell[i, j]
+                    th_pressure_over_V_cocoon = 2*np.pi*np.trapz(np.multiply(np.square(halo_radius), np.multiply(cocoon_filling_factors[i, j], iso_th_pressure_profile)), halo_radius)/V_cocoon[i, j]
+                    th_pressure_over_V_shock_shell = 2*np.pi*np.trapz(np.multiply(np.square(halo_radius), np.multiply(shock_shell_filling_factors[i, j], iso_th_pressure_profile)), halo_radius)/V_shock_shell[i, j]
                     U_cocoon[i, j] = (1/(gamma-1))*(shock_pressure[i, j] - th_pressure_over_V_cocoon)*V_cocoon[i, j]
                     U_shock_shell[i, j] = (1/(gamma-1))*(shock_pressure[i, j] - th_pressure_over_V_shock_shell)*V_shock_shell[i, j]
         return U_cocoon, U_shock_shell
