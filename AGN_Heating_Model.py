@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib
 from pydl.pydlutils.cooling import read_ds_cooling
 from numba import njit, prange
 from RAiSEHD import RAiSE_run
