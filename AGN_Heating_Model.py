@@ -339,7 +339,7 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
     q_shock_shell = compute_shock_shell_volumetric_heating_rate(log_active_age_vals, V_shock, U_shock_shell, duty_cycle)
     # gravitational potential energy of the shocked region
     @njit(parallel=True)
-    def compute_gravitational_potential_energy_of_shock(R_cocoon_lengths, R_shock_lengths, shock_filling_factors, solid_angles, grav_potential, gas_density_profile, halo_radius):
+    def compute_gravitational_potential_energy_of_shock(R_cocoon_lengths, R_shock_lengths, shock_shell_filling_factors, solid_angles, grav_potential, gas_density_profile, halo_radius):
         # shock shell density profile
         shock_shell_density_profiles = np.zeros((power_res, age_res, angular_res, radius_bins))
         for i in prange(power_res):
@@ -361,7 +361,7 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
         U_shock_grav_initial = np.zeros((power_res, age_res))
         for i in prange(power_res):
             for j in range(age_res):
-                U_shock_grav_initial[i, j] = 2*np.pi*np.trapz(np.multiply(np.multiply(np.square(halo_radius), shock_filling_factors[i, j]), np.multiply(gas_density_profile, grav_potential)), halo_radius)
+                U_shock_grav_initial[i, j] = 2*np.pi*np.trapz(np.multiply(np.multiply(np.square(halo_radius), shock_shell_filling_factors[i, j]), np.multiply(gas_density_profile, grav_potential)), halo_radius)
         # change in gravitational potential energy of the shocked mass at end of active age
         U_shock_shells_grav = np.zeros((power_res, age_res))
         for i in prange(power_res):
@@ -370,7 +370,7 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
                     U_shock_shells_grav[i, j] += solid_angles[k]*np.trapz(np.multiply(np.square(halo_radius), np.multiply(shock_shell_density_profiles[i, j, k], grav_potential)), halo_radius)
         U_shock_shell_grav = np.subtract(U_shock_shells_grav, U_shock_grav_initial)
         return U_shock_shell_grav
-    U_shock_shell_grav = compute_gravitational_potential_energy_of_shock(R_cocoon_lengths, R_shock_lengths, shock_filling_factors, solid_angles, grav_potential, gas_density_profile, halo_radius)
+    U_shock_shell_grav = compute_gravitational_potential_energy_of_shock(R_cocoon_lengths, R_shock_lengths, shock_shell_filling_factors, solid_angles, grav_potential, gas_density_profile, halo_radius)
 
     ## Bubble heating rate profiles
     # cocoon rest mass
