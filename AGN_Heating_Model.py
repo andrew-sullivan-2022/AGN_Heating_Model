@@ -47,7 +47,7 @@ Mpc = 3.086*10**22 # m
 # mean molecular weight
 mu = 0.6
 # mean electron weight
-mu_e = 1.16
+mu_e = 1.15
 # mean ion weight
 mu_i = (1/mu + 1/mu_e)**(-1)
 # adiabatic index
