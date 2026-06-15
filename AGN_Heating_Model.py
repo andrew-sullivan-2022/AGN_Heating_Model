@@ -29,6 +29,7 @@ Omega_b = 0.0486
 Omega_DM = 0.2589
 # fraction of baryon content
 f_b = Omega_b/(Omega_b + Omega_DM)
+
 ## Unit conversions
 # solar mass
 Msol = 1.989*10**30 # kg
