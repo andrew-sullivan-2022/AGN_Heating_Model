@@ -34,7 +34,7 @@ f_b = Omega_b/(Omega_b + Omega_DM)
 # solar mass
 Msol = 1.989*10**30 # kg
 # year
-yr = 3.156*10**7
+yr = 3.156*10**7 # s
 # megayear
 Myr = 3.156*10**13 # s
 # gigayear
@@ -114,16 +114,16 @@ def weighted_percentile(values, percentiles, weights):
 def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshift, gas_density_profile, temperature_profile, halo_radius, log_Qjet=0.01, log_dt=0.1):
     ## Inputs
     # loading jet powers
-    log_Qjet_vals = np.atleast_1d(np.round(log_Qjet_vals, int(-np.log10(log_Qjet))))
+    log_Qjet_vals = np.atleast_1d(np.round(log_Qjet_vals, int(-np.log10(log_Qjet)))) # log W
     power_res = 1 if np.isscalar(log_Qjet_vals) else len(log_Qjet_vals)
     # loading active ages
-    log_active_age_vals = np.atleast_1d(np.round(log_active_age_vals, int(-np.log10(log_dt))))
+    log_active_age_vals = np.atleast_1d(np.round(log_active_age_vals, int(-np.log10(log_dt)))) # log yr
     # setting source age time steps
     step_min, step_max = min([0.1, np.min(log_active_age_vals)]), max([9, np.max(log_active_age_vals)])
-    log_age_steps = np.round(np.linspace(step_min, step_max, num=int((step_max - step_min)/log_dt) + 1), 2)
+    log_age_steps = np.round(np.linspace(step_min, step_max, num=int((step_max - step_min)/log_dt) + 1), 2) # log yr
     log_active_age_indices = np.searchsorted(log_age_steps, log_active_age_vals)
     # loading active ages, indexed from source age time steps
-    log_active_age_vals = log_age_steps[log_active_age_indices]
+    log_active_age_vals = log_age_steps[log_active_age_indices] # log yr
     age_res = 1 if np.isscalar(log_active_age_vals) else len(log_active_age_vals)
     # halo radius resolution
     radius_bins = len(halo_radius)
@@ -137,16 +137,16 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
     # angular components
     angular_res = 64
     angles = np.arange(0, angular_res, 1).astype(np.int_)[::-1]
-    dtheta = (np.pi/2) / (angular_res - 1)
-    theta = dtheta * angles
+    dtheta = (np.pi/2) / (angular_res - 1) # radians
+    theta = dtheta * angles # radians
     solid_angles = np.empty(64)
     for i in range(angular_res):
         if theta[i] == 0:
-            solid_angles[i] = 2*np.pi*(np.cos(theta[i]) - np.cos(theta[i] - dtheta/2))
+            solid_angles[i] = 2*np.pi*(np.cos(theta[i]) - np.cos(theta[i] - dtheta/2)) # sr
         elif theta[i] == np.pi/2:
-            solid_angles[i] = 2*np.pi*(np.cos(theta[i] - dtheta/2) - np.cos(theta[i]))
+            solid_angles[i] = 2*np.pi*(np.cos(theta[i] - dtheta/2) - np.cos(theta[i])) # sr
         else:
-            solid_angles[i] = 2*np.pi*(np.cos(theta[i] - dtheta/2) - np.cos(theta[i] + dtheta/2))
+            solid_angles[i] = 2*np.pi*(np.cos(theta[i] - dtheta/2) - np.cos(theta[i] + dtheta/2)) # sr
     # log gas density slopes into RAiSE
     gas_density_log_slope = np.multiply(np.gradient(gas_density_profile, halo_radius), np.divide(halo_radius, gas_density_profile))
     Perseus_betas = -(gas_density_log_slope[1:] + gas_density_log_slope[:-1])/2
@@ -215,9 +215,9 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
         V_shock_shell = np.empty((power_res, age_res))
         for i in prange(power_res):
             for j in range(age_res):
-                V_cocoon[i, j] = (1/3)*np.sum(np.multiply(solid_angles, np.power(R_cocoon_lengths[i, j], 3)))
-                V_shock[i, j] = (1/3)*np.sum(np.multiply(solid_angles, np.power(R_shock_lengths[i, j], 3)))
-                V_shock_shell[i, j] = (1/3)*np.sum(np.multiply(solid_angles, np.subtract(np.power(R_shock_lengths[i, j], 3), np.power(R_cocoon_lengths[i, j], 3))))
+                V_cocoon[i, j] = (1/3)*np.sum(np.multiply(solid_angles, np.power(R_cocoon_lengths[i, j], 3))) # m^3
+                V_shock[i, j] = (1/3)*np.sum(np.multiply(solid_angles, np.power(R_shock_lengths[i, j], 3))) # m^3
+                V_shock_shell[i, j] = (1/3)*np.sum(np.multiply(solid_angles, np.subtract(np.power(R_shock_lengths[i, j], 3), np.power(R_cocoon_lengths[i, j], 3)))) # m^3
         return V_cocoon, V_shock, V_shock_shell
     V_cocoon, V_shock, V_shock_shell = compute_volumes(R_cocoon_lengths, R_shock_lengths, solid_angles)
 
@@ -257,16 +257,16 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
         theta_max = min(upper_1, upper_2)
         # checking min <= max
         if theta_min <= theta_max:
-            solid_angle = 2*np.pi*(np.cos(theta_min) - np.cos(theta_max))
+            solid_angle = 2*np.pi*(np.cos(theta_min) - np.cos(theta_max)) # sr
             return 2*solid_angle/(4*np.pi)
         else:
             return 0
     # cylindrical propagation axis of the bubble and the bands it can fill
-    prop_axis_bubble = halo_radius
+    prop_axis_bubble = halo_radius # m
     prop_bins = len(prop_axis_bubble)
     # axis of the rear of the bubble
     prop_axis_bubble_rear = np.zeros_like(prop_axis_bubble)
-    prop_axis_bubble_rear[1:] = prop_axis_bubble[:-1]
+    prop_axis_bubble_rear[1:] = prop_axis_bubble[:-1] # m
     # filling factor matrix of the bubble as a function of r, z
     @njit(parallel=True)
     def compute_bubble_filling_factors_matrix(prop_axis_bubble, prop_axis_bubble_rear, R_shock_minor, R_shock_lengths_xval, R_shock_lengths_yval, halo_radius):
@@ -276,9 +276,9 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
             for j in range(age_res):
                 for k in range(radius_bins):
                     for m in range(prop_bins):
-                        z_min_val = prop_axis_bubble[m] - band_widths_dz[m]
-                        z_max_val = prop_axis_bubble[m]
-                        y_min_val = R_shock_lengths_yval[i, j, np.argmin(np.abs(R_shock_lengths_xval[i, j] - (z_min_val+z_max_val)/2))]
+                        z_min_val = prop_axis_bubble[m] - band_widths_dz[m] # m
+                        z_max_val = prop_axis_bubble[m] # m
+                        y_min_val = R_shock_lengths_yval[i, j, np.argmin(np.abs(R_shock_lengths_xval[i, j] - (z_min_val+z_max_val)/2))] # m
                         bubble_filling_factors_matrix[i, j, k, m] = calc_bubble_filling_factor(halo_radius[k], z_min_val, z_max_val, R_shock_minor[i, j], y_min_val)
         return bubble_filling_factors_matrix
     bubble_filling_factors_matrix = compute_bubble_filling_factors_matrix(prop_axis_bubble, prop_axis_bubble_rear, R_shock_minor, R_shock_lengths_xval, R_shock_lengths_yval, halo_radius)
@@ -286,13 +286,13 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
     th_pressure_scale_heights_at_lobe = np.empty((power_res, age_res))
     for i in range(power_res):
         for j in range(age_res):
-            th_pressure_scale_heights_at_lobe[i, j] = -th_pressure_profile[np.argmin(np.abs(halo_radius - R_cocoon[i, j]))]/th_pressure_derivative[np.argmin(np.abs(halo_radius - R_cocoon[i, j]))]
+            th_pressure_scale_heights_at_lobe[i, j] = -th_pressure_profile[np.argmin(np.abs(halo_radius - R_cocoon[i, j]))]/th_pressure_derivative[np.argmin(np.abs(halo_radius - R_cocoon[i, j]))] # m
     # setting the upper limit of the bubble propagation ~ 2.5 thermal pressure scale heights
     @njit(parallel=True)
     def set_bubble_propagation_upper_limit(bubble_filling_factors_matrix, th_pressure_scale_heights_at_lobe):
         for i in prange(power_res):
             for j in range(age_res):
-                limit = 3*th_pressure_scale_heights_at_lobe[i, j]
+                limit = 3*th_pressure_scale_heights_at_lobe[i, j] # m
                 for k in range(radius_bins):
                     for m in range(prop_bins):
                         if prop_axis_bubble[m] > limit:
@@ -323,10 +323,10 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
         for i in prange(power_res):
             for j in range(age_res):
                 if V_cocoon[i, j] > 0:
-                    th_pressure_over_V_cocoon = 2*np.pi*np.trapz(np.multiply(np.square(halo_radius), np.multiply(cocoon_filling_factors[i, j], iso_th_pressure_profile)), halo_radius)/V_cocoon[i, j]
-                    th_pressure_over_V_shock_shell = 2*np.pi*np.trapz(np.multiply(np.square(halo_radius), np.multiply(shock_shell_filling_factors[i, j], iso_th_pressure_profile)), halo_radius)/V_shock_shell[i, j]
-                    U_cocoon[i, j] = (1/(gamma-1))*(shock_pressure[i, j] - th_pressure_over_V_cocoon)*V_cocoon[i, j]
-                    U_shock_shell[i, j] = (1/(gamma-1))*(shock_pressure[i, j] - th_pressure_over_V_shock_shell)*V_shock_shell[i, j]
+                    th_pressure_over_V_cocoon = 2*np.pi*np.trapz(np.multiply(np.square(halo_radius), np.multiply(cocoon_filling_factors[i, j], iso_th_pressure_profile)), halo_radius)/V_cocoon[i, j] # Pa
+                    th_pressure_over_V_shock_shell = 2*np.pi*np.trapz(np.multiply(np.square(halo_radius), np.multiply(shock_shell_filling_factors[i, j], iso_th_pressure_profile)), halo_radius)/V_shock_shell[i, j] # Pa
+                    U_cocoon[i, j] = (1/(gamma-1))*(shock_pressure[i, j] - th_pressure_over_V_cocoon)*V_cocoon[i, j] # J
+                    U_shock_shell[i, j] = (1/(gamma-1))*(shock_pressure[i, j] - th_pressure_over_V_shock_shell)*V_shock_shell[i, j] # J
         return U_cocoon, U_shock_shell
     U_cocoon, U_shock_shell = compute_internal_energies(V_cocoon, V_shock_shell, cocoon_filling_factors, shock_shell_filling_factors, shock_pressure, iso_th_pressure_profile, halo_radius)
     # shocked shell volumetric heating rate
@@ -335,7 +335,7 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
         q_shock_shell = np.zeros((power_res, age_res))
         for i in prange(power_res):
             for j in range(age_res):
-                q_shock_shell[i, j] = np.sqrt(duty_cycle)*U_shock_shell[i, j]/(V_shock[i, j]*(10**log_active_age_vals[j]*yr))
+                q_shock_shell[i, j] = np.sqrt(duty_cycle)*U_shock_shell[i, j]/(V_shock[i, j]*(10**log_active_age_vals[j]*yr)) # W m^-3
         return q_shock_shell
     q_shock_shell = compute_shock_shell_volumetric_heating_rate(log_active_age_vals, V_shock, U_shock_shell, duty_cycle)
     # gravitational potential energy of the shocked region
@@ -354,21 +354,21 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
                     # check the shock is larger than the cocoon
                     if index_shock <= index_cocoon:
                         continue
-                    mass_swept = solid_angles[k]*np.trapz(np.multiply(np.square(halo_radius[:index_shock+1]), gas_density_profile[:index_shock+1]), halo_radius[:index_shock+1])
-                    radial_band = halo_radius[index_cocoon:index_shock+1]
+                    mass_swept = solid_angles[k]*np.trapz(np.multiply(np.square(halo_radius[:index_shock+1]), gas_density_profile[:index_shock+1]), halo_radius[:index_shock+1]) # kg
+                    radial_band = halo_radius[index_cocoon:index_shock+1] # m
                     norm = mass_swept/(solid_angles[k]*np.trapz(np.multiply(np.square(radial_band), gas_density_profile[index_cocoon:index_shock+1]), radial_band))
-                    shock_shell_density_profiles[i, j, k, index_cocoon:index_shock+1] = norm*gas_density_profile[index_cocoon:index_shock+1]
+                    shock_shell_density_profiles[i, j, k, index_cocoon:index_shock+1] = norm*gas_density_profile[index_cocoon:index_shock+1] # kg m^-3
         # gravitational potential energy of the shocked region initially
         U_shock_grav_initial = np.zeros((power_res, age_res))
         for i in prange(power_res):
             for j in range(age_res):
-                U_shock_grav_initial[i, j] = 2*np.pi*np.trapz(np.multiply(np.multiply(np.square(halo_radius), shock_shell_filling_factors[i, j]), np.multiply(gas_density_profile, grav_potential)), halo_radius)
+                U_shock_grav_initial[i, j] = 2*np.pi*np.trapz(np.multiply(np.multiply(np.square(halo_radius), shock_shell_filling_factors[i, j]), np.multiply(gas_density_profile, grav_potential)), halo_radius) # J
         # change in gravitational potential energy of the shocked mass at end of active age
         U_shock_shells_grav = np.zeros((power_res, age_res))
         for i in prange(power_res):
             for j in range(age_res):
                 for k in range(angular_res):
-                    U_shock_shells_grav[i, j] += solid_angles[k]*np.trapz(np.multiply(np.square(halo_radius), np.multiply(shock_shell_density_profiles[i, j, k], grav_potential)), halo_radius)
+                    U_shock_shells_grav[i, j] += solid_angles[k]*np.trapz(np.multiply(np.square(halo_radius), np.multiply(shock_shell_density_profiles[i, j, k], grav_potential)), halo_radius) # J
         U_shock_shell_grav = np.subtract(U_shock_shells_grav, U_shock_grav_initial)
         return U_shock_shell_grav
     U_shock_shell_grav = compute_gravitational_potential_energy_of_shock(R_cocoon_lengths, R_shock_lengths, shock_shell_filling_factors, solid_angles, grav_potential, gas_density_profile, halo_radius)
@@ -376,7 +376,7 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
     ## Bubble heating rate profiles
     # cocoon rest mass
     Lorentz_factor = 5  ## from RAiSE
-    cocoon_rest_mass = (10**log_Qjet_vals[:, None])*(10**log_active_age_vals[None, :]*yr)/((Lorentz_factor - 1)*c_light**2)
+    cocoon_rest_mass = (10**log_Qjet_vals[:, None])*(10**log_active_age_vals[None, :]*yr)/((Lorentz_factor - 1)*c_light**2) # kg
     # gravitational potential energy of the cocoon
     @njit(parallel=True)
     def compute_gravitational_potential_energy_of_cocoon(cocoon_rest_mass, R_cocoon, cocoon_filling_factors, grav_potential, gas_density_profile, halo_radius):
@@ -384,36 +384,36 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
         for i in prange(power_res):
             for j in range(age_res):
                 norm = cocoon_rest_mass[i, j]/(2*np.pi*np.trapz(np.multiply(np.multiply(np.square(halo_radius), cocoon_filling_factors[i, j]), gas_density_profile), halo_radius))
-                cocoon_density_profile[i, j, 0:np.argmin(np.abs(R_cocoon[i, j] - halo_radius))+1] = norm*gas_density_profile[0:np.argmin(np.abs(R_cocoon[i, j] - halo_radius))+1]
+                cocoon_density_profile[i, j, 0:np.argmin(np.abs(R_cocoon[i, j] - halo_radius))+1] = norm*gas_density_profile[0:np.argmin(np.abs(R_cocoon[i, j] - halo_radius))+1] # kg m^-3
         # cocoon density contrast
         cocoon_density_contrast = np.empty((power_res, age_res, radius_bins))
         for i in prange(power_res):
             for j in range(age_res):
-                cocoon_density_contrast[i, j] = np.subtract(cocoon_density_profile[i, j], gas_density_profile)
+                cocoon_density_contrast[i, j] = np.subtract(cocoon_density_profile[i, j], gas_density_profile) # kg m^-3
         # gravitational potential energy of the bubble at end of active age
         U_bubble_grav = np.empty((power_res, age_res))
         for i in prange(power_res):
             for j in range(age_res):
-                U_bubble_grav[i, j] = 2*np.pi*np.trapz(np.multiply(np.multiply(np.square(halo_radius), cocoon_filling_factors[i, j]), np.multiply(cocoon_density_contrast[i, j], grav_potential)), halo_radius)
+                U_bubble_grav[i, j] = 2*np.pi*np.trapz(np.multiply(np.multiply(np.square(halo_radius), cocoon_filling_factors[i, j]), np.multiply(cocoon_density_contrast[i, j], grav_potential)), halo_radius) # J
         return U_bubble_grav
     U_bubble_grav = compute_gravitational_potential_energy_of_cocoon(cocoon_rest_mass, R_cocoon, cocoon_filling_factors, grav_potential, gas_density_profile, halo_radius)
     # total bubble energy
-    E_bubble = np.abs(U_bubble_grav)
+    E_bubble = np.abs(U_bubble_grav) # J
     # associated bubble power (x2 bubbles per duty cycle)
     Q_bubble = np.empty((power_res, age_res))
     for i in prange(power_res):
         for j in range(age_res):
-            Q_bubble[i, j] = E_bubble[i, j]/((10**log_active_age_vals[j])*yr/duty_cycle)
+            Q_bubble[i, j] = E_bubble[i, j]/((10**log_active_age_vals[j])*yr/duty_cycle) # W
     # axis to calculate bubble properties
-    prop_axis_for_bubble_properties = R_shock_minor[:, :, None] + prop_axis_bubble_rear[None, None, :]
+    prop_axis_for_bubble_properties = R_shock_minor[:, :, None] + prop_axis_bubble_rear[None, None, :] # m
     # thermal pressure profiles along this axis
     th_pressure_profile_along_prop_axis = np.empty((power_res, age_res, prop_bins))
     th_pressure_derivative_along_prop_axis = np.empty((power_res, age_res, prop_bins))
     for i in prange(power_res):
         for j in range(age_res):
             for k in range(prop_bins):
-                th_pressure_profile_along_prop_axis[i, j, k] = th_pressure_profile[np.argmin(np.abs(halo_radius - prop_axis_for_bubble_properties[i, j, k]))]
-                th_pressure_derivative_along_prop_axis[i, j, k] = th_pressure_derivative[np.argmin(np.abs(halo_radius - prop_axis_for_bubble_properties[i, j, k]))]
+                th_pressure_profile_along_prop_axis[i, j, k] = th_pressure_profile[np.argmin(np.abs(halo_radius - prop_axis_for_bubble_properties[i, j, k]))] # Pa
+                th_pressure_derivative_along_prop_axis[i, j, k] = th_pressure_derivative[np.argmin(np.abs(halo_radius - prop_axis_for_bubble_properties[i, j, k]))] # Pa m^-1
     th_pressure_log_slope_along_prop_axis = np.multiply(th_pressure_derivative_along_prop_axis, np.divide(prop_axis_for_bubble_properties, th_pressure_profile_along_prop_axis))
     @njit(parallel=True)
     def compute_bubble_volumetric_heating_rate(prop_axis_for_bubble_properties, th_pressure_profile_along_prop_axis, th_pressure_log_slope_along_prop_axis, Q_bubble, bubble_filling_factors_matrix, bubble_filling_factors, halo_radius):
@@ -421,26 +421,26 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
         q_bubble_func = np.empty((power_res, age_res, prop_bins))
         for i in prange(power_res):
             for j in range(age_res):
-                q_bubble_func[i, j] = - np.multiply(np.divide(np.power(th_pressure_profile_along_prop_axis[i, j], ((gamma-1)/gamma)), np.square(prop_axis_for_bubble_properties[i, j])), np.subtract(((gamma-1)/gamma)*th_pressure_log_slope_along_prop_axis[i, j], 1))
+                q_bubble_func[i, j] = - np.multiply(np.divide(np.power(th_pressure_profile_along_prop_axis[i, j], ((gamma-1)/gamma)), np.square(prop_axis_for_bubble_properties[i, j])), np.subtract(((gamma-1)/gamma)*th_pressure_log_slope_along_prop_axis[i, j], 1)) # W m^-3
         # normalising the bubble volumetric heating rate over the spherical volume containing bubble pair ## query minimum ##
         q_bubble_norm = np.empty((power_res, age_res))
         for i in prange(power_res):
             for j in range(age_res):
-                q_bubble_norm[i, j] = 2*np.pi*np.trapz(np.multiply(np.square(halo_radius), bubble_filling_factors_matrix[i, j]@q_bubble_func[i, j]), halo_radius)
+                q_bubble_norm[i, j] = 2*np.pi*np.trapz(np.multiply(np.square(halo_radius), bubble_filling_factors_matrix[i, j]@q_bubble_func[i, j]), halo_radius) # W
         q_bubble_along_prop_axis = np.empty((power_res, age_res, prop_bins))
         for i in prange(power_res):
             for j in range(age_res):
-                q_bubble_along_prop_axis[i, j] = Q_bubble[i, j]*q_bubble_func[i, j]/q_bubble_norm[i, j]
+                q_bubble_along_prop_axis[i, j] = Q_bubble[i, j]*q_bubble_func[i, j]/q_bubble_norm[i, j] # W m^-3
         # bubble volumetric heating rate (with contributions from each band)
         q_bubble = np.empty((power_res, age_res, radius_bins))
         for i in prange(power_res):
             for j in range(age_res):
-                q_bubble[i, j] = np.divide(bubble_filling_factors_matrix[i, j]@q_bubble_along_prop_axis[i, j], bubble_filling_factors[i, j])
+                q_bubble[i, j] = np.divide(bubble_filling_factors_matrix[i, j]@q_bubble_along_prop_axis[i, j], bubble_filling_factors[i, j]) # W m^-3
         # squared bubble volumetric heating rate (with contributions from each band)
         q_bubble_squared = np.empty((power_res, age_res, radius_bins))
         for i in prange(power_res):
             for j in range(age_res):
-                q_bubble_squared[i, j] = np.divide(bubble_filling_factors_matrix[i, j]@np.square(q_bubble_along_prop_axis[i, j]), bubble_filling_factors[i, j])
+                q_bubble_squared[i, j] = np.divide(bubble_filling_factors_matrix[i, j]@np.square(q_bubble_along_prop_axis[i, j]), bubble_filling_factors[i, j]) # W^2 m^-6
         return q_bubble, q_bubble_squared
     q_bubble, q_bubble_squared = compute_bubble_volumetric_heating_rate(prop_axis_for_bubble_properties, th_pressure_profile_along_prop_axis, th_pressure_log_slope_along_prop_axis, Q_bubble, bubble_filling_factors_matrix, bubble_filling_factors, halo_radius)
     # removing NaNs
@@ -456,9 +456,9 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
         bubble_energy_injection_rate = np.empty((power_res, age_res, radius_bins))
         for i in prange(power_res):
             for j in range(age_res):
-                cooling_injection_rate[i, j] = np.sqrt(np.multiply(cooling_filling_factor[i, j], np.square(cooling_rate)))
-                shock_energy_injection_rate[i, j] = np.sqrt(np.multiply(shock_filling_factors[i, j], np.square(q_shock_shell[i, j])))
-                bubble_energy_injection_rate[i, j] = np.sqrt(np.multiply(bubble_filling_factors[i, j], q_bubble_squared[i, j]))
+                cooling_injection_rate[i, j] = np.sqrt(np.multiply(cooling_filling_factor[i, j], np.square(cooling_rate))) # W m^-3
+                shock_energy_injection_rate[i, j] = np.sqrt(np.multiply(shock_filling_factors[i, j], np.square(q_shock_shell[i, j]))) # W m^-3
+                bubble_energy_injection_rate[i, j] = np.sqrt(np.multiply(bubble_filling_factors[i, j], q_bubble_squared[i, j])) # W m^-3
         return cooling_injection_rate, shock_energy_injection_rate, bubble_energy_injection_rate
     cooling_injection_rate, shock_energy_injection_rate, bubble_energy_injection_rate = compute_heating_and_cooling_rates(cooling_rate, q_shock_shell, q_bubble_squared, cooling_filling_factor, shock_filling_factors, bubble_filling_factors)
 
@@ -487,9 +487,20 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
         NTP_fraction_in_core = np.empty((power_res, age_res, radius_bins))
         for i in prange(power_res):
             for j in range(age_res):
-                NTP_fraction_in_core[i, j] = np.divide(np.square(velocity_kick_in_core[i, j]), np.add(np.square(velocity_kick_in_core[i, j]), np.square(th_velocity_profile)))
+                NTP_fraction_in_core[i, j] = np.divide(np.square(velocity_kick_in_core[i, j]), np.add(np.square(velocity_kick_in_core[i, j]), np.square(th_velocity_profile))) # %
         return NTP_fraction_in_core
     NTP_fraction_in_core = compute_NTP_fraction(th_velocity_profile, velocity_kick_in_core)
+    # kinetic energy coupling efficiency
+    @njit(parallel=True)
+    def compute_energy_coupling(log_Qjet_vals, log_active_age_vals, shock_filling_factors, bubble_filling_factors, gas_density_profile, velocity_kick_in_core):
+        coupling_efficiency = np.empty((power_res, age_res))
+        for i in prange(power_res):
+            for j in range(age_res):
+                E_total = 2*(10**log_Qjet_vals[i])*((10**log_active_age_vals[j])*yr) # J
+                E_kin = 2*np.pi*np.trapz(np.multiply(np.multiply(gas_density_profile, np.square(velocity_kick_in_core[i, j])), np.multiply(np.square(halo_radius), np.add(shock_filling_factors[i, j], bubble_filling_factors[i, j]))), halo_radius) # J
+                coupling_efficiency[i, j] = E_kin/E_total # %
+        return coupling_efficiency
+    coupling_efficiency = compute_energy_coupling(log_Qjet_vals, log_active_age_vals, shock_filling_factors, bubble_filling_factors, gas_density_profile, velocity_kick_in_core)
 
     ## SAVING THE DATA
     # setting the descriptor for output files
