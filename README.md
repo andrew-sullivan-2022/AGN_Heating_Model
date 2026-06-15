@@ -54,17 +54,17 @@ Creates array files (.txt) for:
 
 **_Q_eff_ : array-like**
 
-  Effective radially-averaged volumetric power [W/m^3] of the AGN
+  Radially-averaged volumetric power [W/m^3] of the AGN
 
 
 **_v_kick_ : array-like**
 
-  Velocity kick [m/s] imparted on the gas
+  Radially-averaged velocity kick [m/s] imparted on the gas
 
 
 **_NTP_fraction_ : array-like**
 
-  Fraction of non-thermal pressure to total pressure [percent] 
+  Radially-averaged fraction of non-thermal pressure to total pressure [percent] imparted on the gas
 
 ______________________________________________________________________________________
 
