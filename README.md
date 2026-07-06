@@ -19,7 +19,7 @@ __Parameters:__
 
 **_duty_cycle_ : float**
 
-  Duty cycle of the AGN [percent]
+  Duty cycle of the AGN [decimal percentage]
 
 
 **_redshift_ : float**
