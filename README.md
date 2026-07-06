@@ -64,7 +64,7 @@ Creates array files (.txt) for:
 
 **_NTP_fraction_ : array-like**
 
-  Radially-averaged fraction of non-thermal pressure to total pressure [percent] imparted on the gas
+  Radially-averaged fraction of non-thermal pressure to total pressure [decimal percentage] imparted on the gas
 
 ______________________________________________________________________________________
 
