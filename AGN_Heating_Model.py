@@ -50,7 +50,7 @@ mu = 0.6
 # mean electron weight
 mu_e = 1.15
 # mean ion weight
-mu_i = (1/mu + 1/mu_e)**(-1)
+mu_i = (1/mu - 1/mu_e)**(-1)
 # adiabatic index
 gamma = 5/3
 
