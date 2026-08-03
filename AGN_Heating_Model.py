@@ -139,7 +139,7 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
     angles = np.arange(0, angular_res, 1).astype(np.int_)[::-1]
     dtheta = (np.pi/2) / (angular_res - 1) # radians
     theta = dtheta * angles # radians
-    solid_angles = np.empty(64)
+    solid_angles = np.empty(angular_res)
     for i in range(angular_res):
         if theta[i] == 0:
             solid_angles[i] = 2*np.pi*(np.cos(theta[i]) - np.cos(theta[i] - dtheta/2)) # sr
