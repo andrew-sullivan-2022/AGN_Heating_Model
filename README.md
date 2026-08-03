@@ -66,7 +66,7 @@ Creates files (.txt) for:
 
   Radially-averaged profile of the fraction of non-thermal pressure to total pressure of the gas [decimal percentage]
 
-**_coupling_efficiency_ : float**
+**_coupling_efficiency_ : float or array-like**
 
   Outburst-averaged efficiency of mechanical jet energy converted into kinetic energy of the gas [decimal percentage]
 
