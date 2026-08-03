@@ -54,21 +54,21 @@ Creates files (.txt) for:
 
 **_Q_eff_ : array-like**
 
-  Radially-averaged volumetric power [W/m^3] of the AGN
+  Radially-averaged profile for the volumetric power profile of the AGN [W/m^3]
 
 
 **_v_kick_ : array-like**
 
-  Radially-averaged velocity kick [m/s] imparted on the gas
+  Radially-averaged profile of the velocity kick profile imparted on the gas [m/s]
 
 
 **_NTP_fraction_ : array-like**
 
-  Radially-averaged fraction of non-thermal pressure to total pressure [decimal percentage] imparted on the gas
+  Radially-averaged profile of the fraction of non-thermal pressure to total pressure of the gas [decimal percentage]
 
 **_coupling_efficiency_ : float**
 
-  Outburst-averaged fraction of mechanical jet energy imparted on the gas as kinetic energy [decimal percentage]
+  Outburst-averaged efficiency of mechanical jet energy converted into kinetic energy of the gas [decimal percentage]
 
 ______________________________________________________________________________________
 
