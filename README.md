@@ -50,7 +50,7 @@ ________________________
 __Returns:__
 
 
-Creates array files (.txt) for:
+Creates files (.txt) for:
 
 **_Q_eff_ : array-like**
 
@@ -65,6 +65,10 @@ Creates array files (.txt) for:
 **_NTP_fraction_ : array-like**
 
   Radially-averaged fraction of non-thermal pressure to total pressure [decimal percentage] imparted on the gas
+
+**_coupling_efficiency_ : float**
+
+  Outburst-averaged fraction of mechanical jet energy imparted on the gas as kinetic energy [decimal percentage]
 
 ______________________________________________________________________________________
 
