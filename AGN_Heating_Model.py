@@ -152,8 +152,10 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
     Perseus_betas = -(gas_density_log_slope[1:] + gas_density_log_slope[:-1])/2
 
     ## Running RAiSE
+    # ensuring correct inputs
+    redshift, core_density, core_temp = float(redshift), float(gas_density_profile[0]), float(temperature_profile[0])
     # run (turn on/off accordingly)
-    RAiSE_run(-1, redshift=redshift, axis_ratio=axis_ratio, jet_power=log_Qjet_vals, source_age=log_age_steps, angle=0., rho0Value=gas_density_profile[0], betas=Perseus_betas, regions=halo_radius[:-1], temperature=temperature_profile[0], active_age=np.max(log_active_age_vals), brightness=False, resolution=None, particle_data=False)
+    RAiSE_run(-1, redshift=redshift, axis_ratio=axis_ratio, jet_power=log_Qjet_vals, source_age=log_age_steps, angle=0., rho0Value=core_density, betas=Perseus_betas, regions=halo_radius[:-1], temperature=core_temp, active_age=np.max(log_active_age_vals), brightness=False, resolution=None, particle_data=False)
 
     ## Environmental profiles
     # number density profiles
