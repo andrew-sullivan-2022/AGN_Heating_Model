@@ -78,3 +78,6 @@ RAiSE_run outputs are changed to:
       df['Shock lengths (kpc)'] = list(2 * shock_lengths.T / const.kpc.value)
       df['Pressure (Pa)'] = shock_pressures[0, :]
       df['Axis Ratio'] = lobe_lengths[0, :] / np.max(lobe_lengths[1:, :] * np.sin(theta[1:, None]) + 1e-256, axis=0)
+
+RAiSE angular resolution is also set to:
+      nangles = 64
