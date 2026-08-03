@@ -518,3 +518,4 @@ def calculate_AGN_heating(log_Qjet_vals, log_active_age_vals, duty_cycle, redshi
     save_nested_arrays("Q_eff_" + descriptor + ".txt", effective_energy_injection_rate)
     save_nested_arrays("v_kick_" + descriptor + ".txt", velocity_kick_in_core)
     save_nested_arrays("NTP_fraction_" + descriptor + ".txt", NTP_fraction_in_core)
+    save_nested_arrays("coupling_efficiency_" + label + ".txt", coupling_efficiency)
